@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: 1c5b877c6ff90dcaab6fef225402d494
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - marble: {fileID: 5165968244628563913, guid: 7bd6f95eb1a9f7713b9050231d4d5ee3,
+      type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
