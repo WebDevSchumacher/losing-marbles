@@ -24,7 +24,7 @@ public class PlayerMovementController : MonoBehaviour
     {
         if(helper.IsOnGround(.01f) && helper.CanMove()){
             float xForce = accelerationFactor * Input.GetAxis("Horizontal") * Time.deltaTime;
-            Debug.Log(transform.forward);
+            // Debug.Log(transform.forward);
             float zForce = accelerationFactor * Input.GetAxis("Vertical") * Time.deltaTime;
             Rigidbody body = GetComponent<Rigidbody>();
             if (Input.GetKeyDown("space"))
