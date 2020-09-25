@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-// using UnityEngine.Ui;
 using TMPro;
 
 public class DisplayController : MonoBehaviour
@@ -21,8 +20,10 @@ public class DisplayController : MonoBehaviour
     // Update is called once per frame
     void UpdateDisplay(string name, float value)
     {
-        if(name == valueName){
-            text.text = value.ToString();
+        if(name == valueName)
+        {
+            int val = (int) value;
+            text.text = val.ToString();
         }
     }
 }

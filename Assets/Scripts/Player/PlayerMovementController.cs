@@ -11,10 +11,14 @@ public class PlayerMovementController : MonoBehaviour
     private PlayerHelper helper;
     public MovementEvent moveEvent;
     bool canSteer;
+    private Rigidbody body;
+    public Vector3 viewDirection;
 
     public Vector3 direction;
     void Awake()
     {
+        viewDirection = Vector3.one;
+        body = GetComponent<Rigidbody>();
         helper = GetComponent<PlayerHelper>();
         moveEvent = new MovementEvent();
         canSteer = true;
@@ -24,16 +28,17 @@ public class PlayerMovementController : MonoBehaviour
     {
         if(helper.IsOnGround(.01f) && helper.CanMove()){
             float xForce = accelerationFactor * Input.GetAxis("Horizontal") * Time.deltaTime;
-            // Debug.Log(transform.forward);
             float zForce = accelerationFactor * Input.GetAxis("Vertical") * Time.deltaTime;
-            Rigidbody body = GetComponent<Rigidbody>();
+            Vector3 norm = viewDirection.normalized;
+            Vector3 force = new Vector3(norm.x*xForce, 0, norm.z*zForce);
             if (Input.GetKeyDown("space"))
             {
                 body.AddForce(0, jumpForceFactor, 0);
                 moveEvent.Invoke("jump");
             }
             if(canSteer){
-                body.AddForce(xForce, 0, zForce);
+                body.AddForce(force);
+                // body.AddForce(xForce, 0, zForce);
                 if(xForce != 0) {
                     moveEvent.Invoke("move");
                 }

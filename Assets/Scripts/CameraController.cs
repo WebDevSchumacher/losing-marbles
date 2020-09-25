@@ -11,9 +11,13 @@ public class CameraController : MonoBehaviour
     public float moveSensitivity = 4.0f;
     public float perspectiveChangeSpeed = 5.0f;
     Quaternion initialRotation;
+    GameObject player;
+    private PlayerMovementController movementController;
 
     void Start()
     {
+        player = GameObject.FindWithTag("Player");
+        movementController = player.GetComponent<PlayerMovementController>();
         free = false;
         transform.LookAt(transform.parent.position);
         initialRotation = transform.parent.rotation;
@@ -21,11 +25,15 @@ public class CameraController : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyUp(KeyCode.C)){
-            if(free){
+        if (Input.GetKeyUp(KeyCode.C))
+        {
+            if (free)
+            {
                 free = false;
                 transform.parent.rotation = initialRotation;
-            } else {
+            }
+            else
+            {
                 free = true;
             }
         }
@@ -33,14 +41,20 @@ public class CameraController : MonoBehaviour
 
     void LateUpdate()
     {
-        if(free){
-            if(Input.GetAxis("Mouse X") != 0){
+        if (free)
+        {
+            if (Input.GetAxis("Mouse X") != 0)
+            {
                 rotation.x += Input.GetAxis("Mouse X") * moveSensitivity;
                 rotation.y = Mathf.Clamp(rotation.y, 0.0f, 90.0f);
             }
+
             Quaternion angle = Quaternion.Euler(rotation.y, rotation.x, 0);
-            transform.parent.rotation = Quaternion.Lerp(transform.parent.rotation, angle, perspectiveChangeSpeed * Time.deltaTime);
-            
+            transform.parent.rotation =
+                Quaternion.Lerp(transform.parent.rotation, angle, perspectiveChangeSpeed * Time.deltaTime);
+            Vector3 direction = new Vector3(player.transform.position.x - transform.position.x, 0,
+                player.transform.position.z - transform.position.z);
+            movementController.viewDirection = direction;
         }
     }
 }

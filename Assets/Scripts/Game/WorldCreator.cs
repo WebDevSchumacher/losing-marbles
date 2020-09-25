@@ -25,32 +25,20 @@ public class WorldCreator : MonoBehaviour
     public int fieldAmount;
     GameObject startZone;
     static GameObject finishZone;
-    Dictionary<string, float> finishBoundaries = new Dictionary<string, float>();
 
-    float levelReach;
-    Vector3 goalCenter;
-    direction orientationX;
-    direction orientationZ;
     Field[,] fields;
 
     public static bool levelCreated;
 
-    private enum direction
-    {
-        North,
-        East,
-        South,
-        West,
-        None
-    };
-    
     private class Field
     {
+        public Vector3 center;
         public Vector2 coordinate;
         public Vector3 originDirection;
 
         public Field(Vector3 center, Vector2 coordinate, Vector3 origin)
         {
+            this.center = center;
             this.coordinate = coordinate;
             this.originDirection = origin;
         }
@@ -61,7 +49,6 @@ public class WorldCreator : MonoBehaviour
     void Start()
     {
         fields = new Field[width, height];
-        
         sceneController = GameObject.Find("GameManager").GetComponent<GameManager>().sceneController;
         startZone = GameObject.Find("StartZone");
         if (!levelCreated)
@@ -73,20 +60,9 @@ public class WorldCreator : MonoBehaviour
 
     private void CreateFinishZone(Vector3 location)
     {
-        Debug.Log(location);
         finishZone = Instantiate(finishZonePrefab, location, Quaternion.identity);
         DontDestroyOnLoad(finishZone);
         instantiated.Add(finishZone);
-        // Vector3 finishSize = finishZone.GetComponent<Renderer>().bounds.size;
-        // Vector3 pathSize = pathPrefab.GetComponent<Renderer>().bounds.size;
-        // Vector3 northEastCorner = new Vector3(goalCenter.x + finishSize.x / 2 + pathSize.x / 2, 0,
-        //     goalCenter.z + finishSize.z / 2 + pathSize.z / 2);
-        // Vector3 southWestCorner = new Vector3(goalCenter.x - finishSize.x / 2 - pathSize.x / 2, 0,
-        //     goalCenter.z - finishSize.z / 2 - pathSize.z / 2);
-        // finishBoundaries.Add("min_x", southWestCorner.x);
-        // finishBoundaries.Add("max_x", northEastCorner.x);
-        // finishBoundaries.Add("min_z", southWestCorner.z);
-        // finishBoundaries.Add("max_z", northEastCorner.z);
 
         if (sceneController.CurrentScene() == SceneController.sceneLevel03)
         {
@@ -126,14 +102,12 @@ public class WorldCreator : MonoBehaviour
                 isStart = false;
             }
 
-            GameObject tile = Instantiate(pathPrefab, tileCenter, Quaternion.identity);
-            DontDestroyOnLoad(tile);
-            instantiated.Add(tile);
-            // int chance = Random.Range(0, 10);
-            // if (chance <= 1)
-            // {
-            //     PlacePickup(tileCenter);
-            // }
+            PlaceObject(pathPrefab, tileCenter);
+            int chance = Random.Range(0, 20);
+            if (chance <= 1)
+            {
+                PlacePickup(tileCenter);
+            }
             
             fields[(int)coordinate.x, (int)coordinate.y] = new Field(tileCenter, coordinate, currentDirection);
             
@@ -163,10 +137,8 @@ public class WorldCreator : MonoBehaviour
         Vector3 finishLineDirection = GetOutwardFacingDirection(coordinate);
         for (int j = 0; j < 5; j++)
         {
-            tileCenter += finishLineDirection;    
-            GameObject tile = Instantiate(pathPrefab, tileCenter, Quaternion.identity);
-            DontDestroyOnLoad(tile);
-            instantiated.Add(tile);
+            tileCenter += finishLineDirection;  
+            PlaceObject(pathPrefab, tileCenter);
             fields[(int)coordinate.x, (int)coordinate.y] = new Field(tileCenter, coordinate, currentDirection);
             coordinate = new Vector2(coordinate.x + currentDirection.x, coordinate.y + currentDirection.z);
         }
@@ -294,6 +266,7 @@ public class WorldCreator : MonoBehaviour
 
     public void ClearLevel()
     {
+        Debug.Log("clearing");
         foreach (GameObject obj in instantiated)
         {
             Destroy(obj);
@@ -304,21 +277,19 @@ public class WorldCreator : MonoBehaviour
 
     void PlaceTurret(Vector3 finishLocation)
     {
+        Debug.Log("turret");
         Vector3 location = new Vector3(finishLocation.x + 8, finishLocation.y, finishLocation.z + 8);
-        GameObject turret = Instantiate(enemyTurret, location, Quaternion.identity);
-        DontDestroyOnLoad(turret);
+        PlaceObject(enemyTurret, location);
     }
 
     void PlaceBrick(Vector3 location)
     {
-        GameObject brick = Instantiate(enemyBrick, location, Quaternion.identity);
-        DontDestroyOnLoad(brick);
+        PlaceObject(enemyBrick, location);
     }
 
     void PlaceIce(Vector3 location)
     {
-        GameObject ice = Instantiate(objectSurface, location, Quaternion.identity);
-        DontDestroyOnLoad(ice);
+        PlaceObject(objectSurface, location);
     }
 
     void PlaceFire(Vector3 location)
@@ -327,14 +298,10 @@ public class WorldCreator : MonoBehaviour
         Vector3 location2 = new Vector3(location.x - 1f, location.y, location.z);
         Vector3 location3 = new Vector3(location.x, location.y, location.z + 1f);
         Vector3 location4 = new Vector3(location.x, location.y, location.z - 1f);
-        GameObject fire = Instantiate(enemyAoe, location1, Quaternion.identity);
-        DontDestroyOnLoad(fire);
-        fire = Instantiate(enemyAoe, location2, Quaternion.identity);
-        DontDestroyOnLoad(fire);
-        fire = Instantiate(enemyAoe, location3, Quaternion.identity);
-        DontDestroyOnLoad(fire);
-        fire = Instantiate(enemyAoe, location4, Quaternion.identity);
-        DontDestroyOnLoad(fire);
+        PlaceObject(enemyAoe, location1);
+        PlaceObject(enemyAoe, location2);
+        PlaceObject(enemyAoe, location3);
+        PlaceObject(enemyAoe, location4);
     }
 
     void PlacePickup(Vector3 tileCenter)
@@ -350,8 +317,13 @@ public class WorldCreator : MonoBehaviour
         {
             instance = pickupHealth;
         }
+        PlaceObject(instance, location);
+    }
 
-        GameObject pickup = Instantiate(instance, location, Quaternion.identity);
-        DontDestroyOnLoad(pickup);
+    private void PlaceObject(GameObject obj, Vector3 location)
+    {
+        GameObject instance = Instantiate(obj, location, Quaternion.identity);
+        DontDestroyOnLoad(instance);
+        instantiated.Add(instance);
     }
 }

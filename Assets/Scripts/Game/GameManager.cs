@@ -71,7 +71,7 @@ public class GameManager : MonoBehaviour
         holdGame.Invoke();
     }
 
-    void UseFuel(float amount){
+    public void UseFuel(float amount){
         fuel -= amount;
         if(fuel <= 0){
             OnDeath();
@@ -79,7 +79,7 @@ public class GameManager : MonoBehaviour
         valueChanged.Invoke("fuel", fuel);
     }
 
-    void DisplayFailureMenu(){
+    public void DisplayFailureMenu(){
             GameObject.FindWithTag("Player").GetComponent<PlayerHelper>().Movable(false);
             GameObject.FindWithTag("Player").GetComponent<PlayerMovementController>().Stop();
             GameObject menu = GameObject.FindWithTag("Hud").transform.Find("MenuOutOfFuel").gameObject;
@@ -112,7 +112,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void Move(string type){
+    public void Move(string type){
         switch(type){
             case "move":
                 UseFuel(.2f);
@@ -123,7 +123,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void TouchAoe(string type){
+    public void TouchAoe(string type){
         switch(type){
             case "poison":
                 dotDuration += 2;
@@ -137,7 +137,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void InflictDamage(float amount){
+    public void InflictDamage(float amount){
         health -= amount;
         valueChanged.Invoke("health", health);
         if(health <= 0){
@@ -145,7 +145,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void Hit(){
+    public void Hit(){
         InflictDamage(5);
     }
 

@@ -233,6 +233,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   accelerationFactor: 200
   jumpForceFactor: 200
+  viewDirection: {x: 0, y: 0, z: 0}
+  direction: {x: 0, y: 0, z: 0}
 --- !u!114 &757435497
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -321,6 +323,9 @@ MonoBehaviour:
     type: 3}
   objectPhysical: {fileID: 5012320419974064475, guid: aadb81d08b5c9fa59946e682b07c67a0,
     type: 3}
+  width: 120
+  height: 120
+  fieldAmount: 40
 --- !u!4 &757673361
 Transform:
   m_ObjectHideFlags: 0
