@@ -20,7 +20,6 @@ public class GameManager : MonoBehaviour
     private bool hasGun;
     public ValueChangedEvent valueChanged;
     public UnityEvent holdGame;
-
     static int totalDuration = 0;
     static float totalFuelSpent = 0;
     static int totalLivesLost = 0;
@@ -28,6 +27,7 @@ public class GameManager : MonoBehaviour
     private float dotDuration;
 
     DateTime startTime;
+    
 
     void Awake()
     {
@@ -47,14 +47,6 @@ public class GameManager : MonoBehaviour
         {
             player.GetComponent<PlayerMovementController>().moveEvent.AddListener(Move);
             player.GetComponent<PlayerHitController>().hit.AddListener(Hit);
-            GameObject.FindWithTag("Finish").GetComponent<FinishController>().finishEvent.AddListener(ReachedTarget);
-
-            GameObject[] aoeGrounds = GameObject.FindGameObjectsWithTag("AoeGround");
-            foreach (GameObject aoeGround in aoeGrounds)
-            {
-                aoeGround.GetComponent<AoeController>().touchEvent.AddListener(TouchAoe);
-            }
-
             GameObject.FindWithTag("Hud").transform.Find("MenuFinish").gameObject.SetActive(false);
             GameObject.FindWithTag("Hud").transform.Find("MenuOutOfFuel").gameObject.SetActive(false);
             startTime = DateTime.Now;
@@ -84,6 +76,17 @@ public class GameManager : MonoBehaviour
         if (dotDuration > 0)
         {
             dotDuration -= Time.deltaTime;
+        }
+    }
+
+    public void WorldBuilt()
+    {
+        GameObject.FindWithTag("Finish").GetComponent<FinishController>().finishEvent.AddListener(ReachedTarget);
+        GameObject[] aoeGrounds = GameObject.FindGameObjectsWithTag("AoeGround");
+        foreach (GameObject aoeGround in aoeGrounds)
+        {
+            Debug.Log(aoeGround.GetComponent<AoeController>());
+            aoeGround.GetComponent<AoeController>().touchEvent.AddListener(TouchAoe);
         }
     }
 
@@ -132,8 +135,10 @@ public class GameManager : MonoBehaviour
         menu.transform.Find("Status").GetComponent<TextMeshProUGUI>().text = msg;
         if (lives == 0)
         {
+            Debug.Log(lives);
             menu.transform.Find("ReloadButton").gameObject.SetActive(false);
         }
+
     }
 
     public float GetValue(string name)
@@ -244,4 +249,11 @@ public class GameManager : MonoBehaviour
     {
         player.GetComponent<PlayerInventory>().Add(obj);
     }
+
+    public void ResetValues()
+    {
+        lives = 3;
+        health = 100f;    
+    }
+
 }

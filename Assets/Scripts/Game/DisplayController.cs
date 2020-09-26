@@ -9,7 +9,6 @@ public class DisplayController : MonoBehaviour
     TextMeshProUGUI text;
     public string valueName;
 
-    // Start is called before the first frame update
     void Start()
     {
         text = GetComponent<TextMeshProUGUI>();
@@ -17,7 +16,6 @@ public class DisplayController : MonoBehaviour
         gameManager.valueChanged.AddListener(UpdateDisplay);
     }
 
-    // Update is called once per frame
     void UpdateDisplay(string name, float value)
     {
         if(name == valueName)

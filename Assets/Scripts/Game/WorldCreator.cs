@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using Random = UnityEngine.Random;
 
@@ -24,7 +25,7 @@ public class WorldCreator : MonoBehaviour
     public int height;
     public int fieldAmount;
     GameObject startZone;
-    static GameObject finishZone;
+    public static Vector3 finishZoneLocation;
 
     Field[,] fields;
 
@@ -44,7 +45,7 @@ public class WorldCreator : MonoBehaviour
         }
     }
 
-    List<GameObject> instantiated = new List<GameObject>();
+    static List<GameObject> instantiated = new List<GameObject>();
 
     void Start()
     {
@@ -56,13 +57,13 @@ public class WorldCreator : MonoBehaviour
             CreatePath();
             levelCreated = true;
         }
+        CreateFinishZone(finishZoneLocation);
+        GameObject.Find("GameManager").GetComponent<GameManager>().WorldBuilt();
     }
 
-    private void CreateFinishZone(Vector3 location)
+    public void CreateFinishZone(Vector3 location)
     {
-        finishZone = Instantiate(finishZonePrefab, location, Quaternion.identity);
-        DontDestroyOnLoad(finishZone);
-        instantiated.Add(finishZone);
+        Instantiate(finishZonePrefab, location, Quaternion.identity);
 
         if (sceneController.CurrentScene() == SceneController.sceneLevel03)
         {
@@ -84,14 +85,13 @@ public class WorldCreator : MonoBehaviour
     {
         Renderer startRenderer = startZone.GetComponent<Renderer>();
         Vector3 pathSize = pathPrefab.GetComponent<Renderer>().bounds.size;
-        Vector3 startZoneOffset = new Vector3(0,0,startRenderer.bounds.extents.x - pathSize.x / 2);
+        Vector3 startZoneOffset = new Vector3(0, 0, startRenderer.bounds.extents.x - pathSize.x / 2);
         Vector3 currentDirection = Vector3.forward;
         Vector3 tileCenter = Vector3.zero;
-        
 
         int i = 0;
         bool isStart = true;
-        Vector2 coordinate = new Vector2(width/2 - 1, 0);
+        Vector2 coordinate = new Vector2(width / 2 - 1, 0);
         bool switchDirection = false;
         do
         {
@@ -108,9 +108,9 @@ public class WorldCreator : MonoBehaviour
             {
                 PlacePickup(tileCenter);
             }
-            
-            fields[(int)coordinate.x, (int)coordinate.y] = new Field(tileCenter, coordinate, currentDirection);
-            
+
+            fields[(int) coordinate.x, (int) coordinate.y] = new Field(tileCenter, coordinate, currentDirection);
+
             if (switchDirection)
             {
                 currentDirection = GetNewDirection(currentDirection, coordinate);
@@ -123,26 +123,30 @@ public class WorldCreator : MonoBehaviour
             while (currentDirection.Equals(Vector3.zero))
             {
                 Field currentField = fields[(int) coordinate.x, (int) coordinate.y];
-                int x = (int)coordinate.x - (int)currentField.originDirection.x;
-                int y = (int)coordinate.y - (int)currentField.originDirection.z;
+                int x = (int) coordinate.x - (int) currentField.originDirection.x;
+                int y = (int) coordinate.y - (int) currentField.originDirection.z;
                 coordinate = new Vector2(x, y);
                 currentDirection = GetNewDirection(Vector3.Reflect(currentDirection, currentDirection), coordinate);
             }
-            
+
             coordinate = new Vector2(coordinate.x + currentDirection.x, coordinate.y + currentDirection.z);
-            
+
             i++;
         } while (i < fieldAmount);
 
         Vector3 finishLineDirection = GetOutwardFacingDirection(coordinate);
         for (int j = 0; j < 5; j++)
         {
-            tileCenter += finishLineDirection;  
+            if (coordinate.x < 0 || coordinate.y < 0 || coordinate.x >= width || coordinate.y >= height)
+            {
+                break;
+            }
+            tileCenter += finishLineDirection;
             PlaceObject(pathPrefab, tileCenter);
-            fields[(int)coordinate.x, (int)coordinate.y] = new Field(tileCenter, coordinate, currentDirection);
+            fields[(int) coordinate.x, (int) coordinate.y] = new Field(tileCenter, coordinate, currentDirection);
             coordinate = new Vector2(coordinate.x + currentDirection.x, coordinate.y + currentDirection.z);
         }
-        CreateFinishZone(tileCenter);
+        finishZoneLocation = tileCenter;
     }
 
     private Vector3 GetNewDirection(Vector3 currentDirection, Vector2 coordinate)
@@ -153,14 +157,17 @@ public class WorldCreator : MonoBehaviour
         {
             directions.Add(Vector3.back);
         }
+
         if (!Vector3.back.Equals(currentDirection))
         {
             directions.Add(Vector3.forward);
         }
+
         if (!Vector3.left.Equals(currentDirection))
         {
             directions.Add(Vector3.right);
         }
+
         if (!Vector3.right.Equals(currentDirection))
         {
             directions.Add(Vector3.left);
@@ -171,31 +178,31 @@ public class WorldCreator : MonoBehaviour
         {
             int x1 = (int) coordinate.x + (int) directions[n].x;
             int y1 = (int) coordinate.y + (int) directions[n].z;
-            int x2 = (int) coordinate.x + (int) directions[n].x*2;
-            int y2 = (int) coordinate.y + (int) directions[n].z*2;
-            if (x1 < 0 || x1 >= width || y1 < 0 || y1 >= height || fields[x1,y1] != null || 
-                x2 < 0 || x2 >= width || y2 < 0 || y2 >= height || fields[x2,y2] != null)
+            int x2 = (int) coordinate.x + (int) directions[n].x * 2;
+            int y2 = (int) coordinate.y + (int) directions[n].z * 2;
+            if (x1 < 0 || x1 >= width || y1 < 0 || y1 >= height || fields[x1, y1] != null ||
+                x2 < 0 || x2 >= width || y2 < 0 || y2 >= height || fields[x2, y2] != null)
             {
                 directions.RemoveAt(n);
             }
         }
+
         Vector3 newDirection = Vector3.zero;
-        
+
         if (directions.Count > 0)
         {
-                
             newDirection = directions[Random.Range(0, directions.Count)];
             int startX = width / 2 - 1;
             bool undesirableDirection = newDirection == Vector3.back || //backwards towards start area
-                                         (coordinate.x < startX && newDirection == Vector3.right) || // inwards from left
-                                         (coordinate.x > startX && newDirection == Vector3.left); // inwards from right
-                                         
-            if (undesirableDirection && Random.Range(0,2) > 0)
+                                        (coordinate.x < startX && newDirection == Vector3.right) || // inwards from left
+                                        (coordinate.x > startX && newDirection == Vector3.left); // inwards from right
+            if (undesirableDirection && Random.Range(0, 2) > 0)
             {
                 // 50% chance of re-roll on undesirable direction
-                newDirection = directions[Random.Range(0, directions.Count)]; 
+                newDirection = directions[Random.Range(0, directions.Count)];
             }
         }
+
         return newDirection;
     }
 
@@ -212,13 +219,15 @@ public class WorldCreator : MonoBehaviour
                     break;
                 }
             }
+
             if (lowestX != Vector2.zero)
             {
                 break;
             }
         }
+
         Vector2 highestX = Vector2.zero;
-        for (int x = width - 1 ; x > (width / 2 - 1) ; x--)
+        for (int x = width - 1; x > (width / 2 - 1); x--)
         {
             for (int y = height - 1; y > 0; y--)
             {
@@ -228,11 +237,13 @@ public class WorldCreator : MonoBehaviour
                     break;
                 }
             }
+
             if (highestX != Vector2.zero)
             {
                 break;
             }
         }
+
         Vector2 highestY = Vector2.zero;
         for (int y = height - 1; y > 0; y--)
         {
@@ -244,11 +255,13 @@ public class WorldCreator : MonoBehaviour
                     break;
                 }
             }
+
             if (highestY != Vector2.zero)
             {
                 break;
             }
         }
+
         Vector3 direction = Vector3.right;
         Vector2 deltaX = highestX;
         if (Vector2.Distance(Vector2.zero, lowestX) > Vector2.Distance(Vector2.zero, highestX))
@@ -261,47 +274,50 @@ public class WorldCreator : MonoBehaviour
         {
             direction = Vector3.forward;
         }
+
         return direction;
     }
 
     public void ClearLevel()
     {
-        Debug.Log("clearing");
         foreach (GameObject obj in instantiated)
         {
             Destroy(obj);
         }
-
+        instantiated = new List<GameObject>();
         levelCreated = false;
     }
 
     void PlaceTurret(Vector3 finishLocation)
     {
-        Debug.Log("turret");
         Vector3 location = new Vector3(finishLocation.x + 8, finishLocation.y, finishLocation.z + 8);
-        PlaceObject(enemyTurret, location);
+        Instantiate(enemyTurret, location, Quaternion.identity);
     }
 
     void PlaceBrick(Vector3 location)
     {
-        PlaceObject(enemyBrick, location);
+        Instantiate(enemyBrick, location, Quaternion.identity);
     }
 
     void PlaceIce(Vector3 location)
     {
-        PlaceObject(objectSurface, location);
+        Instantiate(objectSurface, location, Quaternion.identity);
     }
 
     void PlaceFire(Vector3 location)
     {
-        Vector3 location1 = new Vector3(location.x + 1f, location.y, location.z);
-        Vector3 location2 = new Vector3(location.x - 1f, location.y, location.z);
-        Vector3 location3 = new Vector3(location.x, location.y, location.z + 1f);
-        Vector3 location4 = new Vector3(location.x, location.y, location.z - 1f);
-        PlaceObject(enemyAoe, location1);
-        PlaceObject(enemyAoe, location2);
-        PlaceObject(enemyAoe, location3);
-        PlaceObject(enemyAoe, location4);
+        Vector3 placement = new Vector3(location.x + 1f, location.y, location.z);
+        Instantiate(enemyAoe, placement, Quaternion.identity);
+        placement = new Vector3(location.x - 1f, location.y, location.z);
+        Instantiate(enemyAoe, placement, Quaternion.identity);
+        placement = new Vector3(location.x, location.y, location.z + 1f);
+        Instantiate(enemyAoe, placement, Quaternion.identity);
+        placement = new Vector3(location.x, location.y, location.z - 1f);
+        Instantiate(enemyAoe, placement, Quaternion.identity);
+        // PlaceObject(enemyAoe, location1);
+        // PlaceObject(enemyAoe, location2);
+        // PlaceObject(enemyAoe, location3);
+        // PlaceObject(enemyAoe, location4);
     }
 
     void PlacePickup(Vector3 tileCenter)
@@ -317,6 +333,7 @@ public class WorldCreator : MonoBehaviour
         {
             instance = pickupHealth;
         }
+
         PlaceObject(instance, location);
     }
 

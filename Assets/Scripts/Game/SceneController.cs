@@ -10,6 +10,7 @@ public class SceneController : MonoBehaviour
     public const int sceneLevel02 = 2;
     public const int sceneLevel03 = 3;
     public const int sceneEnd = 4;
+    public const int sceneArena = 5;
 
     public void OnStartArcade()
     {
@@ -18,7 +19,7 @@ public class SceneController : MonoBehaviour
 
     public void OnStartCombat()
     {
-        SceneManager.LoadScene(sceneLevel01, LoadSceneMode.Single);
+        SceneManager.LoadScene(sceneArena, LoadSceneMode.Single);
     }
 
     public int CurrentScene()
@@ -33,12 +34,14 @@ public class SceneController : MonoBehaviour
 
     public void NextLevel()
     {
+        WorldCreator.finishZoneLocation = Vector3.zero;
         GameObject.Find("BootstrapContainer").GetComponent<WorldCreator>().ClearLevel();
         SceneManager.LoadScene(CurrentScene() + 1, LoadSceneMode.Single);
     }
 
     public void MainMenu()
-    {
+    {   
+        GameObject.Find("GameManager").GetComponent<GameManager>().ResetValues();
         SceneManager.LoadScene(sceneStart, LoadSceneMode.Single);
     }
 
@@ -49,6 +52,8 @@ public class SceneController : MonoBehaviour
 
     public void EndScene()
     {
+        WorldCreator.finishZoneLocation = Vector3.zero;
+        GameObject.Find("BootstrapContainer").GetComponent<WorldCreator>().ClearLevel();
         SceneManager.LoadScene(sceneEnd, LoadSceneMode.Single);
     }
 
