@@ -13,6 +13,8 @@ public class CameraController : MonoBehaviour
     Quaternion initialRotation;
     GameObject player;
     private PlayerMovementController movementController;
+    public bool inArena;
+    private bool canTurn;
 
     void Start()
     {
@@ -21,6 +23,7 @@ public class CameraController : MonoBehaviour
         free = false;
         transform.LookAt(transform.parent.position);
         initialRotation = transform.parent.rotation;
+        canTurn = true;
     }
 
     void Update()
@@ -41,7 +44,7 @@ public class CameraController : MonoBehaviour
 
     void LateUpdate()
     {
-        if (free)
+        if ((free || inArena) && canTurn)
         {
             if (Input.GetAxis("Mouse X") != 0)
             {
@@ -52,9 +55,11 @@ public class CameraController : MonoBehaviour
             Quaternion angle = Quaternion.Euler(rotation.y, rotation.x, 0);
             transform.parent.rotation =
                 Quaternion.Lerp(transform.parent.rotation, angle, perspectiveChangeSpeed * Time.deltaTime);
-            Vector3 direction = new Vector3(player.transform.position.x - transform.position.x, 0,
-                player.transform.position.z - transform.position.z);
-            movementController.viewDirection = direction;
         }
+    }
+    
+    public void ToggleTurning()
+    {
+        canTurn = !canTurn;
     }
 }

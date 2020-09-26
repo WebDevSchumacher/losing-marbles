@@ -281,7 +281,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1044614894}
-        m_MethodName: OnStart
+        m_MethodName: OnStartCombat
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -510,7 +510,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1044614894}
-        m_MethodName: OnStart
+        m_MethodName: OnStartArcade
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

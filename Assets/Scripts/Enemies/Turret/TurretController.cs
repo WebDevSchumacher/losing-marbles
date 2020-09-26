@@ -13,7 +13,8 @@ public class TurretController : MonoBehaviour
     bool active;
     GameObject player;
 
-    void Start(){
+    void Start()
+    {
         active = true;
         GameObject.Find("GameManager").GetComponent<GameManager>().holdGame.AddListener(Shutdown);
         GameObject.Find("Switch").GetComponent<SwitchController>().pressed.AddListener(Deactivate);
@@ -23,13 +24,17 @@ public class TurretController : MonoBehaviour
 
     void Update()
     {
-        if(!player){
+        if (!player)
+        {
             player = GameObject.Find("Player");
-        } else {
-
+        }
+        else
+        {
             reloadTimer += Time.deltaTime;
-            if(active && reloadTimer >= fireRate){
-                float angle = Quaternion.Angle(transform.rotation, Quaternion.LookRotation(player.transform.position - transform.position));
+            if (active && reloadTimer >= fireRate)
+            {
+                float angle = Quaternion.Angle(transform.rotation,
+                    Quaternion.LookRotation(player.transform.position - transform.position));
 
                 FireBullet();
                 reloadTimer = 0.0f;
@@ -37,32 +42,39 @@ public class TurretController : MonoBehaviour
         }
     }
 
-    void FireBullet(){
-        if(!bulletObj){
+    void FireBullet()
+    {
+        if (!bulletObj)
+        {
             return;
         }
+
         firedBullets.Clear();
-        if(barrel){
-            GameObject bullet = Instantiate(bulletObj, barrel.transform.position, Quaternion.Euler(barrel.transform.forward)) as GameObject;
+        if (barrel)
+        {
+            GameObject bullet = Instantiate(bulletObj, barrel.transform.position,
+                Quaternion.Euler(barrel.transform.forward));
             bullet.GetComponent<BulletController>().FireBullet(barrel, player);
             firedBullets.Add(bullet);
         }
     }
 
-    void Deactivate(){
+    void Deactivate()
+    {
         active = false;
     }
 
-    void Activate(){
+    void Activate()
+    {
         active = true;
     }
 
-    void Shutdown(){
+    void Shutdown()
+    {
         Deactivate();
-        foreach(GameObject bullet in firedBullets){
+        foreach (GameObject bullet in firedBullets)
+        {
             Destroy(bullet);
         }
     }
-
-    
 }
