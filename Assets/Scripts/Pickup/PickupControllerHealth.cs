@@ -10,7 +10,8 @@ public class PickupControllerHealth : PickupControllerBase
     {
     }
 
-    public override void Pickup(){
+    public override void Pickup()
+    {
         GameObject.Find("GameManager").GetComponent<GameManager>().Heal(amount);
         Destroy(gameObject);
     }

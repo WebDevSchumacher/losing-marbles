@@ -8,6 +8,7 @@ using TMPro;
 public class ValueChangedEvent : UnityEvent<string, float>
 {
 };
+
 public class NpcHitEvent : UnityEvent<GameObject>
 {
 };
@@ -26,8 +27,6 @@ public class GameManager : MonoBehaviour
     static float totalFuelSpent = 0;
     static int totalLivesLost = 0;
     public bool crushed;
-    private float dotDuration;
-
     DateTime startTime;
     private int kills;
     public bool inArena;
@@ -38,9 +37,9 @@ public class GameManager : MonoBehaviour
         {
             lives = 1;
         }
+
         player = GameObject.FindWithTag("Player");
         fuel = 1000f;
-        dotDuration = 0.0f;
         valueChanged = new ValueChangedEvent();
         hitEvent = new NpcHitEvent();
         holdGame = new UnityEvent();
@@ -70,7 +69,6 @@ public class GameManager : MonoBehaviour
         }
         else if (sceneController.CurrentScene() == 5)
         {
-            player.GetComponent<PlayerMovementController>().moveEvent.AddListener(Move);
             player.GetComponent<PlayerHitController>().hit.AddListener(Hit);
             GameObject.FindWithTag("Hud").transform.Find("MenuFinish").gameObject.SetActive(false);
             GameObject.FindWithTag("Hud").transform.Find("MenuOutOfFuel").gameObject.SetActive(false);
@@ -142,7 +140,6 @@ public class GameManager : MonoBehaviour
         {
             menu.transform.Find("ReloadButton").gameObject.SetActive(false);
         }
-
     }
 
     public float GetValue(string name)
@@ -177,9 +174,6 @@ public class GameManager : MonoBehaviour
     {
         switch (type)
         {
-            case "poison":
-                dotDuration += 2;
-                break;
             case "fire":
                 InflictDamage(5);
                 break;
@@ -252,7 +246,7 @@ public class GameManager : MonoBehaviour
     public void ResetValues()
     {
         lives = 3;
-        health = 100f;    
+        health = 100f;
     }
 
     public void EnemyHit()

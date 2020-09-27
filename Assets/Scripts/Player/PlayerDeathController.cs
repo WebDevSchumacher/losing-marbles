@@ -19,7 +19,8 @@ public class PlayerDeathController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(!helper.IsOnGround(5f) && transform.position.y < -5 && !deathTriggered){
+        if (!helper.IsOnGround(5f) && transform.position.y < -5 && !deathTriggered)
+        {
             deathTriggered = true;
             gameManager.OnDeath();
         }

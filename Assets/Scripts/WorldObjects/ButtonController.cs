@@ -12,8 +12,8 @@ public class ButtonController : MonoBehaviour
     Vector3 raise;
     bool pressDown = false;
     bool raiseGate = false;
-    bool active = false;
     private Transform gate;
+
     void Awake()
     {
         gate = gameObject.transform.parent.Find("WallFront");
@@ -22,13 +22,14 @@ public class ButtonController : MonoBehaviour
         raise = new Vector3(0, -0.6f * Time.deltaTime, 0);
     }
 
-    // Update is called once per frame
     void Update()
     {
-        if(pressDown){
+        if (pressDown)
+        {
             gameObject.transform.localScale += indentation;
-            gameObject.transform.position -= indentation/5;
-            if(gameObject.transform.localScale.x <= 0.1f){
+            gameObject.transform.position -= indentation / 5;
+            if (gameObject.transform.localScale.x <= 0.1f)
+            {
                 pressDown = false;
             }
         }
@@ -37,17 +38,19 @@ public class ButtonController : MonoBehaviour
         {
             gate.localScale += raise;
             gate.position -= raise;
-            if(gate.position.y >= 2.8f){
+            if (gate.position.y >= 2.8f)
+            {
                 raiseGate = false;
             }
         }
     }
 
-    void OnCollisionEnter(Collision other) {
-        if(other.gameObject.tag == "Player"){
+    void OnCollisionEnter(Collision other)
+    {
+        if (other.gameObject.tag == "Player")
+        {
             pressDown = true;
             raiseGate = true;
-            active = true;
             gameObject.GetComponent<Renderer>().material = activeMaterial;
             buttonPressed.Invoke();
         }

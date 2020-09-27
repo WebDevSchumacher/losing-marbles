@@ -37,7 +37,6 @@ public class PlayerInventory : MonoBehaviour
             case "GunPickup":
                 obj.transform.position = rightHand.transform.position;
                 obj.transform.parent = rightHand.transform;
-                // obj.transform.rotation = Quaternion.identity;
                 obj.transform.rotation = rightHand.transform.parent.rotation;
                 Destroy(obj.GetComponent<SphereCollider>());
                 obj.GetComponent<PickupControllerGun>().shoot.AddListener(Shoot);

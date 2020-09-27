@@ -19,10 +19,10 @@ public class WorldCreator : MonoBehaviour
         {
             this.center = center;
             this.coordinate = coordinate;
-            this.originDirection = origin;
+            originDirection = origin;
         }
     }
-    
+
     SceneController sceneController;
     public GameObject pathPrefab;
     public GameObject finishZonePrefab;
@@ -51,12 +51,13 @@ public class WorldCreator : MonoBehaviour
         fields = new Field[width, height];
         sceneController = GameObject.Find("GameManager").GetComponent<GameManager>().sceneController;
         startZone = GameObject.Find("StartZone");
-        obstaclePool = new [] {objectSurfaceSmall, enemyBrick, enemyAoe};
+        obstaclePool = new[] {objectSurfaceSmall, enemyBrick, enemyAoe};
         if (!levelCreated)
         {
             CreatePath();
             levelCreated = true;
         }
+
         CreateFinishZone(finishZoneLocation);
         reload.Invoke();
         GameObject.Find("GameManager").GetComponent<GameManager>().WorldBuilt();
@@ -144,11 +145,13 @@ public class WorldCreator : MonoBehaviour
             {
                 break;
             }
+
             tileCenter += finishLineDirection;
             PlaceObject(pathPrefab, tileCenter);
             fields[(int) coordinate.x, (int) coordinate.y] = new Field(tileCenter, coordinate, currentDirection);
             coordinate = new Vector2(coordinate.x + currentDirection.x, coordinate.y + currentDirection.z);
         }
+
         finishZoneLocation = tileCenter;
     }
 
@@ -167,6 +170,7 @@ public class WorldCreator : MonoBehaviour
                 obstacleCap = 3;
                 break;
         }
+
         GameObject obj = obstaclePool[Random.Range(0, obstacleCap)];
         GameObject obstacle = PlaceObject(obj, location);
     }
@@ -306,6 +310,7 @@ public class WorldCreator : MonoBehaviour
         {
             Destroy(obj);
         }
+
         instantiated = new List<GameObject>();
         levelCreated = false;
     }

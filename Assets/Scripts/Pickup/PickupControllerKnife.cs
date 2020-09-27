@@ -13,7 +13,7 @@ public class PickupControllerKnife : PickupControllerBase
     private bool thrusting;
     private bool drawingBack;
     private Quaternion thrustStart;
-    public int thrustSpeed = 500;
+    public int thrustSpeed = 700;
 
     public override void Pickup()
     {
@@ -43,6 +43,7 @@ public class PickupControllerKnife : PickupControllerBase
                 thrustStart = equipment.transform.rotation;
                 player.GetComponent<PlayerMovementController>().ToggleTurning();
             }
+
             if (Input.GetMouseButtonUp(0))
             {
                 thrusting = false;
@@ -54,11 +55,13 @@ public class PickupControllerKnife : PickupControllerBase
                 drawingBack = false;
                 player.GetComponent<PlayerMovementController>().ToggleTurning();
             }
+
             if (thrusting)
             {
                 equipment.transform.rotation = Quaternion.RotateTowards(equipment.transform.rotation,
                     Quaternion.Euler(thrustStart.eulerAngles + thrustAngle), thrustSpeed * Time.deltaTime);
             }
+
             if (drawingBack)
             {
                 equipment.transform.rotation = Quaternion.RotateTowards(equipment.transform.rotation,
@@ -66,7 +69,7 @@ public class PickupControllerKnife : PickupControllerBase
             }
         }
     }
-    
+
     void OnCollisionEnter(Collision other)
     {
         if (thrusting)

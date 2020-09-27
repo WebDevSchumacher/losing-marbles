@@ -19,7 +19,7 @@ public class DisplayController : MonoBehaviour
 
     void UpdateDisplay(string name, float value)
     {
-        if(name == valueName)
+        if (name == valueName)
         {
             int val = (int) value;
             text.text = val.ToString();
