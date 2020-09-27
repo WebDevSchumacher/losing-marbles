@@ -334,14 +334,13 @@ MonoBehaviour:
     type: 3}
   objectSurface: {fileID: 4934865712941887303, guid: b0a6aa22c2808ef9ebb073f25e6d128b,
     type: 3}
+  objectSurfaceSmall: {fileID: 7081691547604529028, guid: 97eb4ddb247a684c98acf42643aa3aa5,
+    type: 3}
   objectPhysical: {fileID: 5012320419974064475, guid: aadb81d08b5c9fa59946e682b07c67a0,
     type: 3}
   width: 120
   height: 120
   fieldAmount: 40
-  builtEvent:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!4 &757673361
 Transform:
   m_ObjectHideFlags: 0

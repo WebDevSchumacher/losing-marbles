@@ -10,7 +10,6 @@ public class NpcMovementController : MonoBehaviour
     private bool hit;
     void Start()
     {
-        Debug.Log("start enemy");
         player = GameObject.FindWithTag("Player");
         body = GetComponent<Rigidbody>();
         hit = false;

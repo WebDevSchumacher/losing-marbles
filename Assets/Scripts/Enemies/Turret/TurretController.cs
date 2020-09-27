@@ -31,11 +31,9 @@ public class TurretController : MonoBehaviour
         else
         {
             reloadTimer += Time.deltaTime;
+            transform.Find("Cupola").transform.LookAt(player.transform);
             if (active && reloadTimer >= fireRate)
             {
-                float angle = Quaternion.Angle(transform.rotation,
-                    Quaternion.LookRotation(player.transform.position - transform.position));
-
                 FireBullet();
                 reloadTimer = 0.0f;
             }

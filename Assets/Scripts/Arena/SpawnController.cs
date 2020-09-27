@@ -18,9 +18,11 @@ public class SpawnController : MonoBehaviour
     private GameManager gameManager;
     public List<GameObject> enemies = new List<GameObject>();
     private bool active;
+    private bool started;
 
     void Start()
     {
+        started = false;
         active = true;
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         gameManager.holdGame.AddListener(Clear);
@@ -40,12 +42,13 @@ public class SpawnController : MonoBehaviour
 
         pickupCountdown = pickupCountdownDuration;
         enemyCountdown = enemyCountdownDuration;
+        GameObject.Find("Button").GetComponent<ButtonController>().buttonPressed.AddListener(StartArena);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (active)
+        if (started && active)
         {
             pickupCountdown -= Time.deltaTime;
             enemyCountdown -= Time.deltaTime;
@@ -108,5 +111,10 @@ public class SpawnController : MonoBehaviour
         {
             Destroy(enemy);
         }
+    }
+
+    void StartArena()
+    {
+        started = true;
     }
 }

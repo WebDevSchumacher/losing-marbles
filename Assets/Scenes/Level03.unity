@@ -476,14 +476,13 @@ MonoBehaviour:
     type: 3}
   objectSurface: {fileID: 4934865712941887303, guid: b0a6aa22c2808ef9ebb073f25e6d128b,
     type: 3}
+  objectSurfaceSmall: {fileID: 7081691547604529028, guid: 97eb4ddb247a684c98acf42643aa3aa5,
+    type: 3}
   objectPhysical: {fileID: 5012320419974064475, guid: aadb81d08b5c9fa59946e682b07c67a0,
     type: 3}
   width: 120
   height: 120
   fieldAmount: 40
-  builtEvent:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!4 &757673361
 Transform:
   m_ObjectHideFlags: 0
@@ -790,7 +789,23 @@ PrefabInstance:
       propertyPath: m_Name
       value: Wall
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    - target: {fileID: 6455728659716497927, guid: fe5d039547ae7f2caa3aa6f4419e0830,
+        type: 3}
+      propertyPath: duration
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 6455728659716497927, guid: fe5d039547ae7f2caa3aa6f4419e0830,
+        type: 3}
+      propertyPath: activeMaterial
+      value: 
+      objectReference: {fileID: 2100000, guid: 4682e41bde5de19fa9adad0e2fde190d, type: 2}
+    - target: {fileID: 6455728659716497927, guid: fe5d039547ae7f2caa3aa6f4419e0830,
+        type: 3}
+      propertyPath: inactiveMaterial
+      value: 
+      objectReference: {fileID: 2100000, guid: a4bf859e2e018f41a9942282a37d7492, type: 2}
+    m_RemovedComponents:
+    - {fileID: 4677519805987248997, guid: fe5d039547ae7f2caa3aa6f4419e0830, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: fe5d039547ae7f2caa3aa6f4419e0830, type: 3}
 --- !u!1001 &2108056670
 PrefabInstance:

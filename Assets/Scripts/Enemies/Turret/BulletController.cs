@@ -27,6 +27,7 @@ public class BulletController : MonoBehaviour
     {
         if (weapon && target)
         {
+            transform.LookAt(target.transform);
             aimDirection = (target.transform.position - weapon.transform.position).normalized;
             isFired = true;
         }
@@ -34,6 +35,7 @@ public class BulletController : MonoBehaviour
 
     public void FireBullet(GameObject weapon, Vector3 direction)
     {
+        
         if (weapon && !direction.Equals(Vector3.zero))
         {
             transform.rotation = weapon.transform.rotation;

@@ -6,7 +6,6 @@ public class CameraController : MonoBehaviour
 {
     private bool free;
     Vector3 rotation;
-    float distanceToFocal = 10.0f;
 
     public float moveSensitivity = 4.0f;
     public float perspectiveChangeSpeed = 5.0f;

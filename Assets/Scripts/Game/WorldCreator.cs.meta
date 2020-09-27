@@ -6,7 +6,7 @@ MonoImporter:
   defaultReferences:
   - marble: {fileID: 5165968244628563913, guid: 7bd6f95eb1a9f7713b9050231d4d5ee3,
       type: 3}
-  executionOrder: 0
+  executionOrder: -20
   icon: {instanceID: 0}
   userData: 
   assetBundleName: 
