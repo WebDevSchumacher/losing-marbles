@@ -106,7 +106,7 @@ GameObject:
   - component: {fileID: 2136289938556080382}
   - component: {fileID: 2136289938556080377}
   - component: {fileID: 2136289938556080376}
-  - component: {fileID: 2136289938556080379}
+  - component: {fileID: 6455728659716497927}
   m_Layer: 0
   m_Name: Switch
   m_TagString: Untagged
@@ -188,7 +188,7 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &2136289938556080379
+--- !u!114 &6455728659716497927
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -206,6 +206,6 @@ MonoBehaviour:
   released:
     m_PersistentCalls:
       m_Calls: []
-  inactiveMaterial: {fileID: 2100000, guid: 699c1351be3d7a3709714f15e2d94992, type: 2}
-  activeMaterial: {fileID: 2100000, guid: a4bf859e2e018f41a9942282a37d7492, type: 2}
-  duration: 10
+  inactiveMaterial: {fileID: 0}
+  activeMaterial: {fileID: 0}
+  duration: 0

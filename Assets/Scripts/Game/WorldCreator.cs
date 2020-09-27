@@ -1,10 +1,28 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.SceneManagement;
+using Random = UnityEngine.Random;
 
 public class WorldCreator : MonoBehaviour
 {
+    private class Field
+    {
+        public Vector3 center;
+        public Vector2 coordinate;
+        public Vector3 originDirection;
+
+        public Field(Vector3 center, Vector2 coordinate, Vector3 origin)
+        {
+            this.center = center;
+            this.coordinate = coordinate;
+            this.originDirection = origin;
+        }
+    }
+    
     SceneController sceneController;
     public GameObject pathPrefab;
     public GameObject finishZonePrefab;
@@ -15,230 +33,330 @@ public class WorldCreator : MonoBehaviour
     public GameObject pickupFuel;
     public GameObject objectSwitch;
     public GameObject objectSurface;
+    public GameObject objectSurfaceSmall;
     public GameObject objectPhysical;
+    public int width;
+    public int height;
+    public int fieldAmount;
     GameObject startZone;
-    static GameObject finishZone;
-    Dictionary<string, float> finishBoundries = new Dictionary<string, float>();
-
-    float levelReach;
-    Vector3 goalCenter;
-    direction orientationX;
-    direction orientationZ;
-
+    public static Vector3 finishZoneLocation;
+    Field[,] fields;
     public static bool levelCreated;
-    private enum direction {North, East, South, West};
-    List<GameObject> instantiated = new List<GameObject>();
-    
-    void Awake()
-    {
-        
-        
-    }
+    static List<GameObject> instantiated = new List<GameObject>();
+    private GameObject[] obstaclePool;
 
     void Start()
     {
+        fields = new Field[width, height];
         sceneController = GameObject.Find("GameManager").GetComponent<GameManager>().sceneController;
         startZone = GameObject.Find("StartZone");
-        if(!levelCreated){
-            CreateFinishZone();
-            CreatePathToTarget(GetStartingDirection());
+        obstaclePool = new [] {objectSurfaceSmall, enemyBrick, enemyAoe};
+        if (!levelCreated)
+        {
+            CreatePath();
             levelCreated = true;
         }
+        CreateFinishZone(finishZoneLocation);
+        GameObject.Find("GameManager").GetComponent<GameManager>().WorldBuilt();
     }
 
-    private void CreateFinishZone(){
-        int goalX = Random.Range(10, 21) * (Random.Range(0,2)*2-1); // Distance: between 10 and 20; Direction: randomly multiplied by 1 or -1
-        int goalZ = Random.Range(10, 21) * (Random.Range(0,2)*2-1);
-        int goalY = Random.Range(-5, 6);
-        goalCenter = new Vector3(Random.Range(10, 21) * (Random.Range(0,2)*2-1), 0, Random.Range(10, 21) * (Random.Range(0,2)*2-1));
+    public void CreateFinishZone(Vector3 location)
+    {
+        Instantiate(finishZonePrefab, location, Quaternion.identity);
 
-        orientationX = (goalCenter.x > 0) ? direction.North : direction.South;
-        orientationZ = (goalCenter.z > 0) ? direction.East : direction.West;
-
-        finishZone = Instantiate(finishZonePrefab, goalCenter, Quaternion.identity);
-        DontDestroyOnLoad(finishZone);
-        instantiated.Add(finishZone);
-        Vector3 finishSize = finishZone.GetComponent<Renderer>().bounds.size;
-        Vector3 pathSize = pathPrefab.GetComponent<Renderer>().bounds.size;
-        Vector3 northEastCorner = new Vector3(goalCenter.x + finishSize.x/2 + pathSize.x/2, 0, goalCenter.z + finishSize.z/2 + pathSize.z/2);
-        Vector3 southWestCorner = new Vector3(goalCenter.x - finishSize.x/2 - pathSize.x/2, 0, goalCenter.z - finishSize.z/2 - pathSize.z/2);
-        finishBoundries.Add("min_x", southWestCorner.x);
-        finishBoundries.Add("max_x", northEastCorner.x);
-        finishBoundries.Add("min_z", southWestCorner.z);
-        finishBoundries.Add("max_z", northEastCorner.z);
-
-        levelReach = Vector3.Distance(startZone.GetComponent<Renderer>().bounds.center, goalCenter);
-        if(sceneController.CurrentScene() == SceneController.sceneLevel03){
-            PlaceFire();
-        }
-
-        if(sceneController.CurrentScene() == SceneController.sceneLevel02){
-            PlaceBrick();
-        }
-
-        if(sceneController.CurrentScene() == SceneController.sceneLevel01){
-            PlaceIce();
+        switch (sceneController.CurrentScene())
+        {
+            case SceneController.sceneLevel01:
+                PlaceIce(location);
+                break;
+            case SceneController.sceneLevel02:
+                PlaceBrick(location);
+                break;
+            case SceneController.sceneLevel03:
+                PlaceFire(location);
+                break;
         }
     }
 
-    private direction GetStartingDirection(){
-        direction startingDirection;
-        if(Mathf.Abs(goalCenter.x) >= Mathf.Abs(goalCenter.z)){ //maximum distance in x direction
-            if(goalCenter.x > 0){ // forward direction from stating perspective
-                startingDirection = direction.North;
-            } else {
-                startingDirection = direction.South;
-            }
-        } else {
-            if(goalCenter.z > 0){ // righthand direction from stating perspective
-                startingDirection = direction.East;
-            } else {
-                startingDirection = direction.West;
-            }
-        }
-        return startingDirection;
-    }
-
-    private void CreatePathToTarget(direction startingDirection){
+    private void CreatePath()
+    {
         Renderer startRenderer = startZone.GetComponent<Renderer>();
-        Vector3 startCenter = startRenderer.bounds.center;
         Vector3 pathSize = pathPrefab.GetComponent<Renderer>().bounds.size;
+        Vector3 startZoneOffset = new Vector3(0, 0, startRenderer.bounds.extents.x - pathSize.x / 2);
+        Vector3 currentDirection = Vector3.forward;
+        Vector3 tileCenter = Vector3.zero;
 
-        float startZoneOffset = startRenderer.bounds.extents.x - pathSize.x / 2;
-
-        direction currentDirection = startingDirection;
-        Vector3 tileCenter = new Vector3(0,0,0);
-        Vector3 targetDirection = new Vector3(0,0,0);
         int i = 0;
+        bool isStart = true;
+        Vector2 coordinate = new Vector2(width / 2 - 1, 0);
         bool switchDirection = false;
-        do{
-            switch(currentDirection){
-            case direction.North:
-                // targetDirection = new Vector3(100, 0, 0);
-                tileCenter.x += pathSize.x+startZoneOffset;
-                break;
-            case direction.East:
-                // targetDirection = new Vector3(0, 0, 100);
-                tileCenter.z += pathSize.x+startZoneOffset;
-                break;
-            case direction.South:
-                tileCenter.x -= pathSize.x+startZoneOffset;
-                // targetDirection = new Vector3(-100, 0, 0);
-                break;
-            case direction.West:
-                tileCenter.z -= pathSize.x+startZoneOffset;
-                // targetDirection = new Vector3(0, 0, -100);
-                break;
-            }
-            // tileCenter = Vector3.MoveTowards(tileCenter, targetDirection, pathPrefab.transform.localScale.x+startZoneOffset);
-            if(Vector3.Distance(startCenter, tileCenter) > levelReach){
-                currentDirection = GetRandomDirection(currentDirection, tileCenter);
-                continue;
+        do
+        {
+            tileCenter += currentDirection;
+            if (isStart)
+            {
+                tileCenter += startZoneOffset;
+                isStart = false;
             }
 
-            GameObject tile = Instantiate(pathPrefab, tileCenter, Quaternion.identity);
-            DontDestroyOnLoad(tile);
-            instantiated.Add(tile);
-            int chance = Random.Range(0,10);
-            if(chance <= 1){
+            PlaceObject(pathPrefab, tileCenter);
+            int chance = Random.Range(0, 20);
+            if (chance <= 1)
+            {
                 PlacePickup(tileCenter);
             }
 
-            startZoneOffset = 0.0f;
-            if(switchDirection){
-                currentDirection = GetRandomDirection(currentDirection, tileCenter);
+            fields[(int) coordinate.x, (int) coordinate.y] = new Field(tileCenter, coordinate, currentDirection);
+
+            if (switchDirection)
+            {
+                currentDirection = GetNewDirection(currentDirection, coordinate);
             }
+
             switchDirection = !switchDirection; // switch placement direction every 2nd iteration
+
+            // if no tile can be placed, i.e. if it would create loops or reach out-of-bounds:
+            // backtrack through 
+            while (currentDirection.Equals(Vector3.zero))
+            {
+                Field currentField = fields[(int) coordinate.x, (int) coordinate.y];
+                int x = (int) coordinate.x - (int) currentField.originDirection.x;
+                int y = (int) coordinate.y - (int) currentField.originDirection.z;
+                coordinate = new Vector2(x, y);
+                currentDirection = GetNewDirection(Vector3.Reflect(currentDirection, currentDirection), coordinate);
+            }
+
+            coordinate = new Vector2(coordinate.x + currentDirection.x, coordinate.y + currentDirection.z);
+
             i++;
-        }while(!FinishZoneReached(tileCenter) && i < 30);
+            if (i % 5 == 0)
+            {
+                PlaceObstacle(tileCenter);
+            }
+        } while (i < fieldAmount);
+
+        Vector3 finishLineDirection = GetOutwardFacingDirection(coordinate);
+        for (int j = 0; j < 5; j++)
+        {
+            if (coordinate.x < 0 || coordinate.y < 0 || coordinate.x >= width || coordinate.y >= height)
+            {
+                break;
+            }
+            tileCenter += finishLineDirection;
+            PlaceObject(pathPrefab, tileCenter);
+            fields[(int) coordinate.x, (int) coordinate.y] = new Field(tileCenter, coordinate, currentDirection);
+            coordinate = new Vector2(coordinate.x + currentDirection.x, coordinate.y + currentDirection.z);
+        }
+        finishZoneLocation = tileCenter;
     }
 
-    private direction GetRandomDirection(direction current, Vector3 position){ // returns a random direction except the opposite of 'current', we don't want to go back where we came from
-        bool isOpositeDirection = true;
-        orientationX = (goalCenter.x > position.x) ? direction.North : direction.South;
-        orientationZ = (goalCenter.z > position.z) ? direction.East : direction.West;
-        direction newDirection = current;
+    void PlaceObstacle(Vector3 location)
+    {
+        int obstacleCap = 0;
+        switch (sceneController.CurrentScene())
+        {
+            case SceneController.sceneLevel01:
+                obstacleCap = 1;
+                break;
+            case SceneController.sceneLevel02:
+                obstacleCap = 2;
+                break;
+            case SceneController.sceneLevel03:
+                obstacleCap = 3;
+                break;
+        }
+        GameObject obj = obstaclePool[Random.Range(0, obstacleCap)];
+        PlaceObject(obj, location);
+    }
 
-        do{
-            newDirection = Random.Range(0, 2) > 0 ? orientationX : orientationZ;
-            // if(newDirection != orientationX && newDirection != orientationZ){
-            //     continue;
-            // }
+    private Vector3 GetNewDirection(Vector3 currentDirection, Vector2 coordinate)
+    {
+        // all directions, excluding going back
+        List<Vector3> directions = new List<Vector3>();
+        if (!Vector3.forward.Equals(currentDirection))
+        {
+            directions.Add(Vector3.back);
+        }
 
-            switch(current){
-                case direction.North:
-                    isOpositeDirection = (newDirection == direction.South);
-                    break;
-                case direction.East:
-                    isOpositeDirection = (newDirection == direction.West);
-                    break;
-                case direction.South:
-                    isOpositeDirection = (newDirection == direction.North);
-                    break;
-                case direction.West:
-                    isOpositeDirection = (newDirection == direction.East);
-                    break;
+        if (!Vector3.back.Equals(currentDirection))
+        {
+            directions.Add(Vector3.forward);
+        }
+
+        if (!Vector3.left.Equals(currentDirection))
+        {
+            directions.Add(Vector3.right);
+        }
+
+        if (!Vector3.right.Equals(currentDirection))
+        {
+            directions.Add(Vector3.left);
+        }
+
+        // remove already occupied or out-of-bounds fields from possibilities
+        for (int n = directions.Count - 1; n >= 0; n--)
+        {
+            int x1 = (int) coordinate.x + (int) directions[n].x;
+            int y1 = (int) coordinate.y + (int) directions[n].z;
+            int x2 = (int) coordinate.x + (int) directions[n].x * 2;
+            int y2 = (int) coordinate.y + (int) directions[n].z * 2;
+            if (x1 < 0 || x1 >= width || y1 < 0 || y1 >= height || fields[x1, y1] != null ||
+                x2 < 0 || x2 >= width || y2 < 0 || y2 >= height || fields[x2, y2] != null)
+            {
+                directions.RemoveAt(n);
             }
-        }while(isOpositeDirection);
+        }
+
+        Vector3 newDirection = Vector3.zero;
+
+        if (directions.Count > 0)
+        {
+            newDirection = directions[Random.Range(0, directions.Count)];
+            int startX = width / 2 - 1;
+            bool undesirableDirection = newDirection == Vector3.back || //backwards towards start area
+                                        (coordinate.x < startX && newDirection == Vector3.right) || // inwards from left
+                                        (coordinate.x > startX && newDirection == Vector3.left); // inwards from right
+            if (undesirableDirection && Random.Range(0, 2) > 0)
+            {
+                // 50% chance of re-roll on undesirable direction
+                newDirection = directions[Random.Range(0, directions.Count)];
+            }
+        }
+
         return newDirection;
     }
 
-    private bool FinishZoneReached(Vector3 tileCenter){
-        bool reached = false;
-        reached = (tileCenter.x >= finishBoundries["min_x"] && tileCenter.x <= finishBoundries["max_x"]) && (tileCenter.z >= finishBoundries["min_z"] && tileCenter.z <= finishBoundries["max_z"]);
-        return reached;
+    private Vector3 GetOutwardFacingDirection(Vector2 coordinate)
+    {
+        Vector2 lowestX = Vector2.zero;
+        for (int x = 0; x < (width / 2 - 1); x++)
+        {
+            for (int y = height - 1; y > 0; y--)
+            {
+                if (fields[x, y] != null)
+                {
+                    lowestX = fields[x, y].coordinate;
+                    break;
+                }
+            }
+
+            if (lowestX != Vector2.zero)
+            {
+                break;
+            }
+        }
+
+        Vector2 highestX = Vector2.zero;
+        for (int x = width - 1; x > (width / 2 - 1); x--)
+        {
+            for (int y = height - 1; y > 0; y--)
+            {
+                if (fields[x, y] != null)
+                {
+                    highestX = fields[x, y].coordinate;
+                    break;
+                }
+            }
+
+            if (highestX != Vector2.zero)
+            {
+                break;
+            }
+        }
+
+        Vector2 highestY = Vector2.zero;
+        for (int y = height - 1; y > 0; y--)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                if (fields[x, y] != null)
+                {
+                    highestY = fields[x, y].coordinate;
+                    break;
+                }
+            }
+
+            if (highestY != Vector2.zero)
+            {
+                break;
+            }
+        }
+
+        Vector3 direction = Vector3.right;
+        Vector2 deltaX = highestX;
+        if (Vector2.Distance(Vector2.zero, lowestX) > Vector2.Distance(Vector2.zero, highestX))
+        {
+            deltaX = lowestX;
+            direction = Vector3.left;
+        }
+
+        if (Vector2.Distance(Vector2.zero, deltaX) > Vector2.Distance(Vector2.zero, highestY))
+        {
+            direction = Vector3.forward;
+        }
+
+        return direction;
     }
 
-    public void ClearLevel(){
-        foreach(GameObject obj in instantiated){
+    public void ClearLevel()
+    {
+        foreach (GameObject obj in instantiated)
+        {
             Destroy(obj);
         }
+        instantiated = new List<GameObject>();
         levelCreated = false;
     }
 
-    void PlaceTurret(){
-        Vector3 location = new Vector3(goalCenter.x, goalCenter.y, goalCenter.z + 8);
-        GameObject turret = Instantiate(enemyTurret, location, Quaternion.identity);
-        DontDestroyOnLoad(turret);
+    void PlaceTurret(Vector3 finishLocation)
+    {
+        Vector3 location = new Vector3(finishLocation.x + 8, finishLocation.y, finishLocation.z + 8);
+        Instantiate(enemyTurret, location, Quaternion.identity);
     }
 
-    void PlaceBrick(){
-        Vector3 location = new Vector3(goalCenter.x, goalCenter.y+0.5f, goalCenter.z);
-        GameObject brick = Instantiate(enemyBrick, location, Quaternion.identity);
-        DontDestroyOnLoad(brick);
+    void PlaceBrick(Vector3 location)
+    {
+        Instantiate(enemyBrick, location, Quaternion.identity);
     }
 
-    void PlaceIce(){
-        Vector3 location = new Vector3(goalCenter.x, goalCenter.y, goalCenter.z);
-        GameObject ice = Instantiate(objectSurface, location, Quaternion.identity);
-        DontDestroyOnLoad(ice);
+    void PlaceIce(Vector3 location)
+    {
+        Instantiate(objectSurface, location, Quaternion.identity);
     }
 
-    void PlaceFire(){
-        Vector3 location1 = new Vector3(goalCenter.x+1f, goalCenter.y, goalCenter.z);
-        Vector3 location2 = new Vector3(goalCenter.x-1f, goalCenter.y, goalCenter.z);
-        Vector3 location3 = new Vector3(goalCenter.x, goalCenter.y, goalCenter.z+1f);
-        Vector3 location4 = new Vector3(goalCenter.x, goalCenter.y, goalCenter.z-1f);
-        GameObject ice = Instantiate(enemyAoe, location1, Quaternion.identity);
-        DontDestroyOnLoad(ice);
-        ice = Instantiate(enemyAoe, location2, Quaternion.identity);
-        DontDestroyOnLoad(ice);
-        ice = Instantiate(enemyAoe, location3, Quaternion.identity);
-        DontDestroyOnLoad(ice);
-        ice = Instantiate(enemyAoe, location4, Quaternion.identity);
-        DontDestroyOnLoad(ice);
+    void PlaceFire(Vector3 location)
+    {
+        Vector3 placement = new Vector3(location.x + 1f, location.y, location.z);
+        Instantiate(enemyAoe, placement, Quaternion.identity);
+        placement = new Vector3(location.x - 1f, location.y, location.z);
+        Instantiate(enemyAoe, placement, Quaternion.identity);
+        placement = new Vector3(location.x, location.y, location.z + 1f);
+        Instantiate(enemyAoe, placement, Quaternion.identity);
+        placement = new Vector3(location.x, location.y, location.z - 1f);
+        Instantiate(enemyAoe, placement, Quaternion.identity);
     }
 
-    void PlacePickup(Vector3 tileCenter){
-        Vector3 location = new Vector3(tileCenter.x, tileCenter.y+0.2f, tileCenter.z);
+    void PlacePickup(Vector3 tileCenter)
+    {
+        Vector3 location = new Vector3(tileCenter.x, tileCenter.y + 0.2f, tileCenter.z);
 
         GameObject instance;
-        if(Random.Range(0,2) < 1){
+        if (Random.Range(0, 2) < 1)
+        {
             instance = pickupFuel;
-        } else {
+        }
+        else
+        {
             instance = pickupHealth;
         }
-        GameObject pickup = Instantiate(instance, location, Quaternion.identity);
-        DontDestroyOnLoad(pickup);
+
+        PlaceObject(instance, location);
+    }
+
+    private void PlaceObject(GameObject obj, Vector3 location)
+    {
+        GameObject instance = Instantiate(obj, location, Quaternion.identity);
+        DontDestroyOnLoad(instance);
+        instantiated.Add(instance);
     }
 }

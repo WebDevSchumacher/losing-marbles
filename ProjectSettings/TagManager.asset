@@ -7,6 +7,7 @@ TagManager:
   - Ground
   - Hud
   - AoeGround
+  - Npc
   layers:
   - Default
   - TransparentFX

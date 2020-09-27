@@ -121,6 +121,18 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!114 &451948545 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: -6907946538149032019, guid: 7b2aab281c9a08abcb0951767f36f4e1,
+    type: 3}
+  m_PrefabInstance: {fileID: 2108056670}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd600c74f6206f30c84ab4fd780e7b48, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -233,6 +245,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   accelerationFactor: 200
   jumpForceFactor: 200
+  inArena: 0
+  turnSensitivity: 2
+  equipment: {fileID: 0}
 --- !u!114 &757435497
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -319,8 +334,13 @@ MonoBehaviour:
     type: 3}
   objectSurface: {fileID: 4934865712941887303, guid: b0a6aa22c2808ef9ebb073f25e6d128b,
     type: 3}
+  objectSurfaceSmall: {fileID: 7081691547604529028, guid: 97eb4ddb247a684c98acf42643aa3aa5,
+    type: 3}
   objectPhysical: {fileID: 5012320419974064475, guid: aadb81d08b5c9fa59946e682b07c67a0,
     type: 3}
+  width: 120
+  height: 120
+  fieldAmount: 40
 --- !u!4 &757673361
 Transform:
   m_ObjectHideFlags: 0
@@ -623,18 +643,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7bd6f95eb1a9f7713b9050231d4d5ee3, type: 3}
---- !u!114 &1902598139 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: -6907946538149032019, guid: 7b2aab281c9a08abcb0951767f36f4e1,
-    type: 3}
-  m_PrefabInstance: {fileID: 2108056670}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cd600c74f6206f30c84ab4fd780e7b48, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &2108056670
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -842,12 +850,12 @@ PrefabInstance:
         type: 3}
       propertyPath: gameManager
       value: 
-      objectReference: {fileID: 1902598139}
+      objectReference: {fileID: 451948545}
     - target: {fileID: 320479927762927646, guid: 88b100d025a2729a0b7ae3ca0c0369e1,
         type: 3}
       propertyPath: gameManager
       value: 
-      objectReference: {fileID: 1902598139}
+      objectReference: {fileID: 451948545}
     - target: {fileID: 426620001994245648, guid: 88b100d025a2729a0b7ae3ca0c0369e1,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -893,6 +901,11 @@ PrefabInstance:
       propertyPath: m_textInfo.lineCount
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 5900506557716627909, guid: 88b100d025a2729a0b7ae3ca0c0369e1,
+        type: 3}
+      propertyPath: gameManager
+      value: 
+      objectReference: {fileID: 451948545}
     - target: {fileID: 6728842663682433975, guid: 88b100d025a2729a0b7ae3ca0c0369e1,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target

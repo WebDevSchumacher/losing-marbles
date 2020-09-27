@@ -12,7 +12,6 @@ public class FinishController : MonoBehaviour
     }
     void OnCollisionEnter(Collision other) {
         if(other.gameObject.tag == "Player"){
-            Debug.Log("Ziel erreicht");
             finishEvent.Invoke();
         }
     }
