@@ -8,17 +8,19 @@ using TMPro;
 public class ValueChangedEvent : UnityEvent<string, float>
 {
 };
+public class NpcHitEvent : UnityEvent<GameObject>
+{
+};
 
 public class GameManager : MonoBehaviour
 {
     public SceneController sceneController;
     private GameObject player;
     static int lives = 3;
-    static float health = 100f;
+    float health = 100f;
     float fuel;
-    private int ammo;
-    private bool hasGun;
     public ValueChangedEvent valueChanged;
+    public NpcHitEvent hitEvent;
     public UnityEvent holdGame;
     static int totalDuration = 0;
     static float totalFuelSpent = 0;
@@ -27,18 +29,23 @@ public class GameManager : MonoBehaviour
     private float dotDuration;
 
     DateTime startTime;
-    
+    private int kills;
+    public bool inArena;
 
     void Awake()
     {
+        if (inArena)
+        {
+            lives = 1;
+        }
         player = GameObject.FindWithTag("Player");
-        ammo = 0;
-        hasGun = false;
         fuel = 1000f;
         dotDuration = 0.0f;
         valueChanged = new ValueChangedEvent();
+        hitEvent = new NpcHitEvent();
         holdGame = new UnityEvent();
         sceneController = GetComponent<SceneController>();
+        kills = 0;
     }
 
     void Start()
@@ -62,6 +69,8 @@ public class GameManager : MonoBehaviour
         }
         else if (sceneController.CurrentScene() == 5)
         {
+            player.GetComponent<PlayerMovementController>().moveEvent.AddListener(Move);
+            player.GetComponent<PlayerHitController>().hit.AddListener(Hit);
             GameObject.FindWithTag("Hud").transform.Find("MenuFinish").gameObject.SetActive(false);
             GameObject.FindWithTag("Hud").transform.Find("MenuOutOfFuel").gameObject.SetActive(false);
             PlayerMovementController pController =
@@ -71,21 +80,12 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void Update()
-    {
-        if (dotDuration > 0)
-        {
-            dotDuration -= Time.deltaTime;
-        }
-    }
-
     public void WorldBuilt()
     {
         GameObject.FindWithTag("Finish").GetComponent<FinishController>().finishEvent.AddListener(ReachedTarget);
         GameObject[] aoeGrounds = GameObject.FindGameObjectsWithTag("AoeGround");
         foreach (GameObject aoeGround in aoeGrounds)
         {
-            Debug.Log(aoeGround.GetComponent<AoeController>());
             aoeGround.GetComponent<AoeController>().touchEvent.AddListener(TouchAoe);
         }
     }
@@ -135,7 +135,6 @@ public class GameManager : MonoBehaviour
         menu.transform.Find("Status").GetComponent<TextMeshProUGUI>().text = msg;
         if (lives == 0)
         {
-            Debug.Log(lives);
             menu.transform.Find("ReloadButton").gameObject.SetActive(false);
         }
 
@@ -197,7 +196,7 @@ public class GameManager : MonoBehaviour
 
     public void Hit()
     {
-        InflictDamage(5);
+        InflictDamage(inArena ? 10 : 5);
     }
 
     public int GetLives()
@@ -240,11 +239,6 @@ public class GameManager : MonoBehaviour
         menu.transform.Find("FuelSpent").GetComponent<TextMeshProUGUI>().text = fuelSpent.ToString() + " fuel spent";
     }
 
-    public void AddAmmo(int amount)
-    {
-        ammo += amount;
-    }
-
     public void AttachObjectToPlayer(GameObject obj)
     {
         player.GetComponent<PlayerInventory>().Add(obj);
@@ -256,4 +250,9 @@ public class GameManager : MonoBehaviour
         health = 100f;    
     }
 
+    public void EnemyHit()
+    {
+        kills++;
+        valueChanged.Invoke("kills", kills);
+    }
 }

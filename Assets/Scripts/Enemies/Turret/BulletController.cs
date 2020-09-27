@@ -44,11 +44,19 @@ public class BulletController : MonoBehaviour
 
     void OnCollisionEnter(Collision other)
     {
-        if (other.gameObject.tag == "Player")
+        if (other.gameObject.CompareTag("Player"))
         {
             GameObject player = other.gameObject;
             player.GetComponent<PlayerHitController>().hit.Invoke();
             Destroy(gameObject);
+        }
+        if (other.gameObject.CompareTag("Npc"))
+        {
+            GameObject npc = other.gameObject;
+            npc.GetComponent<NpcCombatController>().hit.Invoke();
+            Destroy(gameObject);
+            Destroy(npc);
+            GameObject.Find("GameManager").GetComponent<GameManager>().hitEvent.Invoke(gameObject);
         }
     }
 }

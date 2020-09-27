@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
@@ -12,7 +13,7 @@ public class DisplayController : MonoBehaviour
     void Start()
     {
         text = GetComponent<TextMeshProUGUI>();
-        text.text = gameManager.GetValue(valueName).ToString();   
+        text.text = gameManager.GetValue(valueName).ToString();
         gameManager.valueChanged.AddListener(UpdateDisplay);
     }
 

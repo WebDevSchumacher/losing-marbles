@@ -32,6 +32,7 @@ public class PlayerMovementController : MonoBehaviour
         moveEvent = new MovementEvent();
         canSteer = true;
         canTurn = true;
+        GameObject.Find("GameManager").GetComponent<GameManager>().holdGame.AddListener(Stop);
     }
 
     void Update()
@@ -75,12 +76,12 @@ public class PlayerMovementController : MonoBehaviour
             container.transform.Rotate(new Vector3(0, Input.GetAxis("Mouse X") * turnSensitivity, 0));
             container.transform.DetachChildren();
             Destroy(container);
-            // body.transform.Rotate(new Vector3(0, Input.GetAxis("Mouse X") * turnSensitivity, 0));
         }
     }
 
     public void Stop()
     {
+        helper.Movable(false);
         body.velocity = Vector3.zero;
         body.angularVelocity = Vector3.zero;
         body.constraints = RigidbodyConstraints.FreezePosition;
@@ -96,6 +97,5 @@ public class PlayerMovementController : MonoBehaviour
     {
         canTurn = !canTurn;
         camController.ToggleTurning();
-        Debug.Log("can turn " + canTurn);
     }
 }

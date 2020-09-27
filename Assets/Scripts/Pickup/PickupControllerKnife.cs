@@ -66,4 +66,18 @@ public class PickupControllerKnife : PickupControllerBase
             }
         }
     }
+    
+    void OnCollisionEnter(Collision other)
+    {
+        if (thrusting)
+        {
+            if (other.gameObject.CompareTag("Npc"))
+            {
+                GameObject npc = other.gameObject;
+                npc.GetComponent<NpcCombatController>().hit.Invoke();
+                Destroy(npc);
+                GameObject.Find("GameManager").GetComponent<GameManager>().hitEvent.Invoke(gameObject);
+            }
+        }
+    }
 }

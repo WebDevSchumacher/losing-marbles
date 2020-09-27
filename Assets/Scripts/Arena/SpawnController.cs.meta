@@ -6,6 +6,10 @@ MonoImporter:
   defaultReferences:
   - pickupHealth: {fileID: 895684702080508187, guid: e5e51ef24053645bfb8139e9107d8cd5,
       type: 3}
+  - pickupAmmo: {fileID: 895684702080508187, guid: f371270b26a32474993dc37070d7aa0c,
+      type: 3}
+  - npcPrefab: {fileID: 5165968244628563913, guid: 1a69875bf5f0dc019b19984a2ee71a3a,
+      type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

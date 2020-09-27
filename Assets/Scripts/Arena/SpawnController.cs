@@ -5,14 +5,25 @@ using UnityEngine;
 public class SpawnController : MonoBehaviour
 {
     public GameObject pickupHealth;
+    public GameObject pickupAmmo;
+    public GameObject pickupFuel;
     public GameObject npcPrefab;
-    private float countdown;
+    public int pickupCountdownDuration;
+    public int enemyCountdownDuration;
+    private float pickupCountdown;
+    private float enemyCountdown;
     private Vector3[,] fields;
     private int xSize;
     private int zSize;
+    private GameManager gameManager;
+    public List<GameObject> enemies = new List<GameObject>();
+    private bool active;
 
     void Start()
     {
+        active = true;
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        gameManager.holdGame.AddListener(Clear);
         GameObject arena = GameObject.Find("Arena");
         Renderer arenaRenderer = arena.GetComponent<Renderer>();
         Bounds arenaBounds = arenaRenderer.bounds;
@@ -27,42 +38,55 @@ public class SpawnController : MonoBehaviour
             }
         }
 
-        countdown = 10;
+        pickupCountdown = pickupCountdownDuration;
+        enemyCountdown = enemyCountdownDuration;
     }
 
     // Update is called once per frame
     void Update()
     {
-        countdown -= Time.deltaTime;
-        if (countdown <= 0)
+        if (active)
         {
-            switch (Random.Range(0, 2))
+            pickupCountdown -= Time.deltaTime;
+            enemyCountdown -= Time.deltaTime;
+            if (pickupCountdown <= 0)
             {
-                case 0:
-                    PlaceNpc();
-                    break;
-                case 1:
-                    PlacePickup();
-                    break;
+                PlacePickup();
+                pickupCountdown = pickupCountdownDuration;
             }
-
-            countdown = 10;
+            if (enemyCountdown <= 0)
+            {
+                PlaceNpc();
+                enemyCountdown = enemyCountdownDuration;
+            }
         }
     }
 
     void PlacePickup()
     {
         GameObject instance;
-        if (Random.Range(0, 2) < 1)
+        switch (Random.Range(0, 2))
         {
-            instance = pickupHealth;
-            PlaceObject(instance, GetField());
+            case 0:
+                instance = pickupHealth;
+                PlaceObject(instance, GetField());
+                break;
+            case 1:
+                instance = pickupAmmo;
+                PlaceObject(instance, GetField());
+                break;
+            case 2:
+                instance = pickupFuel;
+                PlaceObject(instance, GetField());
+                break;
         }
     }
 
     void PlaceNpc()
     {
         GameObject instance = Instantiate(npcPrefab, GetField(), Quaternion.identity);
+        instance.GetComponent<NpcCombatController>().hit.AddListener(gameManager.EnemyHit);
+        enemies.Add(instance);
     }
 
     private void PlaceObject(GameObject obj, Vector3 location)
@@ -75,5 +99,14 @@ public class SpawnController : MonoBehaviour
         int x = Random.Range(0, xSize);
         int z = Random.Range(0, zSize);
         return fields[x, z];
+    }
+
+    void Clear()
+    {
+        active = false;
+        foreach (GameObject enemy in GameObject.FindGameObjectsWithTag("Npc"))
+        {
+            Destroy(enemy);
+        }
     }
 }

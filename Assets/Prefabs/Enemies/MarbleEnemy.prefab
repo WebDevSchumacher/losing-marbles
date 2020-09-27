@@ -14,9 +14,10 @@ GameObject:
   - component: {fileID: 5165968244628563918}
   - component: {fileID: 5165968244628563906}
   - component: {fileID: 3644944161266257468}
+  - component: {fileID: 1733235401513882267}
   m_Layer: 0
   m_Name: MarbleEnemy
-  m_TagString: Untagged
+  m_TagString: Npc
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -121,5 +122,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 116378bc4d4837b7aa941992d56a041e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  accelerationFactor: 1
+--- !u!114 &1733235401513882267
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5165968244628563913}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f6835bd4142faeb69f57b5e2e372450, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

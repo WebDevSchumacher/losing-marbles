@@ -12,6 +12,8 @@ public class PlayerInventory : MonoBehaviour
     private GameObject player;
     public GameObject equipment;
     public GameObject item;
+    public int ammo;
+    private GameManager gameManager;
     void Awake()
     {
         player = GameObject.Find("Player");
@@ -19,6 +21,7 @@ public class PlayerInventory : MonoBehaviour
         leftHand = GameObject.Find("LeftHand");
         rightHand = GameObject.Find("RightHand");
         back = GameObject.Find("Back");
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
     }
 
     public void Add(GameObject obj)
@@ -37,6 +40,7 @@ public class PlayerInventory : MonoBehaviour
                 // obj.transform.rotation = Quaternion.identity;
                 obj.transform.rotation = rightHand.transform.parent.rotation;
                 Destroy(obj.GetComponent<SphereCollider>());
+                obj.GetComponent<PickupControllerGun>().shoot.AddListener(Shoot);
                 break;
             case "JumppackPickup":
                 obj.transform.position = back.transform.position;
@@ -47,4 +51,15 @@ public class PlayerInventory : MonoBehaviour
         }
         inventory.Add(obj);
     }
+    public void AddAmmo(int amount)
+    {
+        ammo += amount;
+        gameManager.valueChanged.Invoke("ammo", ammo);
+    }
+
+    void Shoot()
+    {
+        AddAmmo(-1);
+    }
+    
 }
