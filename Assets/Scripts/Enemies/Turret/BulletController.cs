@@ -35,7 +35,6 @@ public class BulletController : MonoBehaviour
 
     public void FireBullet(GameObject weapon, Vector3 direction)
     {
-        
         if (weapon && !direction.Equals(Vector3.zero))
         {
             transform.rotation = weapon.transform.rotation;
@@ -52,6 +51,7 @@ public class BulletController : MonoBehaviour
             player.GetComponent<PlayerHitController>().hit.Invoke();
             Destroy(gameObject);
         }
+
         if (other.gameObject.CompareTag("Npc"))
         {
             GameObject npc = other.gameObject;

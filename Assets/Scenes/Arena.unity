@@ -320,7 +320,7 @@ MonoBehaviour:
   accelerationFactor: 200
   jumpForceFactor: 200
   inArena: 1
-  turnSensitivity: 4
+  turnSensitivity: 10
   equipment: {fileID: 0}
 --- !u!114 &757435497
 MonoBehaviour:
@@ -746,7 +746,7 @@ PrefabInstance:
     - target: {fileID: 4210275212925685325, guid: 8f43a83bcc340368b9256715995f26a5,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 150
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 4647378158425389165, guid: 8f43a83bcc340368b9256715995f26a5,
         type: 3}
@@ -776,7 +776,12 @@ PrefabInstance:
     - target: {fileID: 4920400071013769768, guid: 8f43a83bcc340368b9256715995f26a5,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 50
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6163602567486767256, guid: 8f43a83bcc340368b9256715995f26a5,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6163602567517541603, guid: 8f43a83bcc340368b9256715995f26a5,
         type: 3}
@@ -908,6 +913,11 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 200
       objectReference: {fileID: 0}
+    - target: {fileID: 6163602569536570946, guid: 8f43a83bcc340368b9256715995f26a5,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6454261932537770114, guid: 8f43a83bcc340368b9256715995f26a5,
         type: 3}
       propertyPath: m_Name
@@ -916,7 +926,7 @@ PrefabInstance:
     - target: {fileID: 6849020745029237794, guid: 8f43a83bcc340368b9256715995f26a5,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 100
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 7727965119006468058, guid: 8f43a83bcc340368b9256715995f26a5,
         type: 3}

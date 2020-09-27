@@ -19,10 +19,10 @@ public class WorldCreator : MonoBehaviour
         {
             this.center = center;
             this.coordinate = coordinate;
-            this.originDirection = origin;
+            originDirection = origin;
         }
     }
-    
+
     SceneController sceneController;
     public GameObject pathPrefab;
     public GameObject finishZonePrefab;
@@ -44,19 +44,22 @@ public class WorldCreator : MonoBehaviour
     public static bool levelCreated;
     static List<GameObject> instantiated = new List<GameObject>();
     private GameObject[] obstaclePool;
+    public static UnityEvent reload = new UnityEvent();
 
     void Start()
     {
         fields = new Field[width, height];
         sceneController = GameObject.Find("GameManager").GetComponent<GameManager>().sceneController;
         startZone = GameObject.Find("StartZone");
-        obstaclePool = new [] {objectSurfaceSmall, enemyBrick, enemyAoe};
+        obstaclePool = new[] {objectSurfaceSmall, enemyBrick, enemyAoe};
         if (!levelCreated)
         {
             CreatePath();
             levelCreated = true;
         }
+
         CreateFinishZone(finishZoneLocation);
+        reload.Invoke();
         GameObject.Find("GameManager").GetComponent<GameManager>().WorldBuilt();
     }
 
@@ -142,11 +145,13 @@ public class WorldCreator : MonoBehaviour
             {
                 break;
             }
+
             tileCenter += finishLineDirection;
             PlaceObject(pathPrefab, tileCenter);
             fields[(int) coordinate.x, (int) coordinate.y] = new Field(tileCenter, coordinate, currentDirection);
             coordinate = new Vector2(coordinate.x + currentDirection.x, coordinate.y + currentDirection.z);
         }
+
         finishZoneLocation = tileCenter;
     }
 
@@ -165,8 +170,9 @@ public class WorldCreator : MonoBehaviour
                 obstacleCap = 3;
                 break;
         }
+
         GameObject obj = obstaclePool[Random.Range(0, obstacleCap)];
-        PlaceObject(obj, location);
+        GameObject obstacle = PlaceObject(obj, location);
     }
 
     private Vector3 GetNewDirection(Vector3 currentDirection, Vector2 coordinate)
@@ -304,6 +310,7 @@ public class WorldCreator : MonoBehaviour
         {
             Destroy(obj);
         }
+
         instantiated = new List<GameObject>();
         levelCreated = false;
     }
@@ -353,10 +360,11 @@ public class WorldCreator : MonoBehaviour
         PlaceObject(instance, location);
     }
 
-    private void PlaceObject(GameObject obj, Vector3 location)
+    private GameObject PlaceObject(GameObject obj, Vector3 location)
     {
         GameObject instance = Instantiate(obj, location, Quaternion.identity);
         DontDestroyOnLoad(instance);
         instantiated.Add(instance);
+        return instance;
     }
 }

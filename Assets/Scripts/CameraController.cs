@@ -56,7 +56,7 @@ public class CameraController : MonoBehaviour
                 Quaternion.Lerp(transform.parent.rotation, angle, perspectiveChangeSpeed * Time.deltaTime);
         }
     }
-    
+
     public void ToggleTurning()
     {
         canTurn = !canTurn;

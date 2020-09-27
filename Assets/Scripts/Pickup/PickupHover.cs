@@ -19,7 +19,8 @@ public class PickupHover : MonoBehaviour
     void Update()
     {
         gameObject.transform.position += hover;
-        if(gameObject.transform.position.y > zenith || gameObject.transform.position.y < nadir){
+        if (gameObject.transform.position.y > zenith || gameObject.transform.position.y < nadir)
+        {
             hover = -hover;
         }
     }

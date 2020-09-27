@@ -40,14 +40,10 @@ public class SceneController : MonoBehaviour
     }
 
     public void MainMenu()
-    {   
-        GameObject.Find("GameManager").GetComponent<GameManager>().ResetValues();
-        SceneManager.LoadScene(sceneStart, LoadSceneMode.Single);
-    }
-
-    public int GetLastLevelIndex()
     {
-        return sceneEnd - 1;
+        GameObject.Find("GameManager").GetComponent<GameManager>().ResetValues();
+        GameObject.Find("BootstrapContainer").GetComponent<WorldCreator>().ClearLevel();
+        SceneManager.LoadScene(sceneStart, LoadSceneMode.Single);
     }
 
     public void EndScene()

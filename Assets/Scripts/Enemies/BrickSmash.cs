@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public class BrickSmash : MonoBehaviour
@@ -17,30 +18,40 @@ public class BrickSmash : MonoBehaviour
         nadir = gameObject.GetComponent<Renderer>().bounds.size.y / 2;
         rise = new Vector3(0, 0.4f * Time.deltaTime, 0);
         fall = new Vector3(0, -4.0f * Time.deltaTime, 0);
-        hover = new Vector3(0, 0.4f * Time.deltaTime, 0);  
-        GameObject.Find("GameManager").GetComponent<GameManager>().holdGame.AddListener(Stop);      
-        active = true;   
+        hover = rise;
+        GameObject.Find("GameManager").GetComponent<GameManager>().holdGame.AddListener(Stop);
+        active = true;
+        WorldCreator.reload.AddListener(Start);
     }
 
     void Update()
     {
-        if(active){
+        if (active)
+        {
             gameObject.transform.position += hover;
-            if(gameObject.transform.position.y >= zenith){
+            if (gameObject.transform.position.y >= zenith)
+            {
                 hover = fall;
-            } else if(gameObject.transform.position.y <= nadir){
+            }
+            else if (gameObject.transform.position.y <= nadir)
+            {
                 hover = rise;
             }
         }
     }
 
-    void OnCollisionEnter(Collision other) {
-        if(other.gameObject.tag == "Player"){
-            GameObject.Find("GameManager").GetComponent<GameManager>().OnDeath();
+    void OnCollisionEnter(Collision other)
+    {
+        if (other.gameObject.tag == "Player")
+        {
+            GameManager gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+            gameManager.crushed = true;
+            gameManager.OnDeath();
         }
     }
 
-    void Stop(){
+    void Stop()
+    {
         active = false;
     }
 }

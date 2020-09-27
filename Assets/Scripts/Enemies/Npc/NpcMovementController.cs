@@ -8,6 +8,7 @@ public class NpcMovementController : MonoBehaviour
     private Rigidbody body;
     public float accelerationFactor = 10;
     private bool hit;
+
     void Start()
     {
         player = GameObject.FindWithTag("Player");

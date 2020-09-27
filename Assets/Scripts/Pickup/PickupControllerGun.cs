@@ -44,6 +44,7 @@ public class PickupControllerGun : PickupControllerBase
         {
             return;
         }
+
         GameObject bullet = Instantiate(bulletObj, transform.position, Quaternion.Euler(transform.forward));
         bullet.GetComponent<BulletController>().FireBullet(gameObject, transform.forward);
         shoot.Invoke();

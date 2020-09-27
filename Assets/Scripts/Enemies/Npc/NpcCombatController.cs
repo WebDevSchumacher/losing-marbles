@@ -11,8 +11,9 @@ public class NpcCombatController : MonoBehaviour
     {
         hit = new UnityEvent();
     }
-    
-    void OnCollisionEnter(Collision other) {
+
+    void OnCollisionEnter(Collision other)
+    {
         if (other.gameObject.tag == "Player")
         {
             GameObject player = other.gameObject;

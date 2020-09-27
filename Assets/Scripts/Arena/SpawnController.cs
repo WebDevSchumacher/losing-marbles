@@ -45,7 +45,6 @@ public class SpawnController : MonoBehaviour
         GameObject.Find("Button").GetComponent<ButtonController>().buttonPressed.AddListener(StartArena);
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (started && active)
@@ -57,6 +56,7 @@ public class SpawnController : MonoBehaviour
                 PlacePickup();
                 pickupCountdown = pickupCountdownDuration;
             }
+
             if (enemyCountdown <= 0)
             {
                 PlaceNpc();
