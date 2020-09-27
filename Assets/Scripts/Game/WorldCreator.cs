@@ -44,6 +44,7 @@ public class WorldCreator : MonoBehaviour
     public static bool levelCreated;
     static List<GameObject> instantiated = new List<GameObject>();
     private GameObject[] obstaclePool;
+    public static UnityEvent reload = new UnityEvent();
 
     void Start()
     {
@@ -57,6 +58,7 @@ public class WorldCreator : MonoBehaviour
             levelCreated = true;
         }
         CreateFinishZone(finishZoneLocation);
+        reload.Invoke();
         GameObject.Find("GameManager").GetComponent<GameManager>().WorldBuilt();
     }
 
@@ -166,7 +168,7 @@ public class WorldCreator : MonoBehaviour
                 break;
         }
         GameObject obj = obstaclePool[Random.Range(0, obstacleCap)];
-        PlaceObject(obj, location);
+        GameObject obstacle = PlaceObject(obj, location);
     }
 
     private Vector3 GetNewDirection(Vector3 currentDirection, Vector2 coordinate)
@@ -353,10 +355,11 @@ public class WorldCreator : MonoBehaviour
         PlaceObject(instance, location);
     }
 
-    private void PlaceObject(GameObject obj, Vector3 location)
+    private GameObject PlaceObject(GameObject obj, Vector3 location)
     {
         GameObject instance = Instantiate(obj, location, Quaternion.identity);
         DontDestroyOnLoad(instance);
         instantiated.Add(instance);
+        return instance;
     }
 }

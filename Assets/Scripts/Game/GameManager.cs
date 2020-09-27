@@ -25,7 +25,7 @@ public class GameManager : MonoBehaviour
     static int totalDuration = 0;
     static float totalFuelSpent = 0;
     static int totalLivesLost = 0;
-
+    public bool crushed;
     private float dotDuration;
 
     DateTime startTime;
@@ -46,6 +46,7 @@ public class GameManager : MonoBehaviour
         holdGame = new UnityEvent();
         sceneController = GetComponent<SceneController>();
         kills = 0;
+        crushed = false;
     }
 
     void Start()
@@ -126,6 +127,10 @@ public class GameManager : MonoBehaviour
         else if (health <= 0)
         {
             msg = "Died";
+        }
+        else if (crushed)
+        {
+            msg = "Crushed";
         }
         else
         {

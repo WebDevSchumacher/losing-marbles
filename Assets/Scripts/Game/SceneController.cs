@@ -42,6 +42,7 @@ public class SceneController : MonoBehaviour
     public void MainMenu()
     {   
         GameObject.Find("GameManager").GetComponent<GameManager>().ResetValues();
+        GameObject.Find("BootstrapContainer").GetComponent<WorldCreator>().ClearLevel();
         SceneManager.LoadScene(sceneStart, LoadSceneMode.Single);
     }
 
